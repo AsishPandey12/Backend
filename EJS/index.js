@@ -12,9 +12,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/ig/:username", (req, res) => {
-  const followers = ["Shubham", "Rohit", "Ankur", "Dhoni"];
   let { username } = req.params;
-  res.render("ig.ejs", { username, followers });
+  const instadata = require("./data.json");
+  const data = instadata[username];
+  if (data) {
+    res.render("ig.ejs", { data });
+  } else {
+    res.render("error.ejs");
+  }
+
+  // const followers = ["Shubham", "Rohit", "Ankur", "Dhoni"];
+  // let { username } = req.params;
+  // res.render("ig.ejs", { username, followers });
 });
 
 //passing data to EJS

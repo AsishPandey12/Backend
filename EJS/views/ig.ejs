@@ -3,15 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Intagram</title>
+    <style>
+      body {
+        background-color: lightcoral;
+      }
+      img {
+        height: 200px;
+        width: 200px;
+      }
+    </style>
   </head>
   <body>
-    <h1>This page belong to <%= username %></h1>
+    <h1>This page belongs to @<%= data.name %></h1>
     <button>Follow</button>
     <button>Message</button>
-    <h3>Followers</h3>
-    <% for(let name of followers) { %>
-    <li><%= name %></li>
-    <% } %>
+
+    <p>Followers: <%= data.followers %></p>
+    <p>Following: <%= data.following %></p>
+    <hr />
+    <% for (let post of data.posts) { %>
+    <div>
+      <img src="<%= post.image %>" alt="Post Image" />
+      <p>Likes: <%= post.likes %></p>
+      <p>Comments: <%= post.comments %></p>
+    </div>
+    <% } %> <%- include("includes/footer.ejs") %>
   </body>
 </html>
