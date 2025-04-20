@@ -24,6 +24,7 @@
 // classes
 
 class Person {
+  // base class / parent class
   constructor(name, age) {
     (this.name = name), (this.age = age);
   }
