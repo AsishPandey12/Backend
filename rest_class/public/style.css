@@ -9,3 +9,12 @@ h1 {
 .user {
   font-style: italic;
 }
+
+.btn {
+  background-color: #a82400;
+  color: #fffa86;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
