@@ -4,6 +4,7 @@ const { faker } = require("@faker-js/faker");
 const mysql = require("mysql2");
 const path = require("path");
 const methodOverride = require("method-override");
+const { v4: uuidv4 } = require("uuid");
 
 let port = 8080;
 
@@ -117,6 +118,69 @@ app.patch("/user/:id", (req, res) => {
     });
   } catch (err) {
     console.log(err);
+    res.send("Some error in DB");
+  }
+});
+
+app.get("/user/new", (req, res) => {
+  res.render("newuser.ejs");
+});
+
+// Add new user (Post route)
+app.post("/user/new", (req, res) => {
+  let { username, email, password } = req.body;
+  let id = uuidv4();
+  let q = `INSERT INTO user (id , username , email , password) VALUES ('${id}' , '${username}' , '${email}' , '${password}')`;
+
+  try {
+    connection.query(q, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      res.redirect("/user");
+    });
+  } catch (err) {
+    res.send("some error in DB");
+  }
+});
+
+app.get("/user/:id", (req, res) => {
+  let { id } = req.params;
+  let q = `SELECT * FROM user WHERE id='${id}'`;
+  try {
+    connection.query(q, (err, result) => {
+      if (err) throw err;
+      let user = result[0];
+      console.log(result);
+      res.render("delete.ejs", { user });
+    });
+  } catch (err) {
+    res.send("Some error in DB");
+  }
+});
+
+// Delte Route
+app.delete("/user/:id", (req, res) => {
+  let { id } = req.params;
+  let { email: formEmail, password: formPassword } = req.body;
+  let q = `SELECT * FROM user WHERE id='${id}'`;
+  try {
+    connection.query(q, (err, result) => {
+      if (err) throw err;
+      let user = result[0];
+      if (formEmail != user.email) {
+        res.send("Wrong email!");
+      }
+      if (formPassword != user.password) {
+        res.send("Wrong Password");
+      } else {
+        let q2 = `DELETE FROM user WHERE id='${id}'`;
+        connection.query(q2, (err, result) => {
+          if (err) throw err;
+          res.redirect("/user");
+        });
+      }
+    });
+  } catch (err) {
     res.send("Some error in DB");
   }
 });
