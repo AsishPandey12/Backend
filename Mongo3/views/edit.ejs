@@ -3,21 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Chat</title>
+    <title>Edit Your chat ....</title>
   </head>
   <body>
-    <h3>Edit Your Chat... : <%= chat._id %></h3>
+    <h3>Edit your chat : <%=chat._id%></h3>
     <p>
-      This chat was sent from <b><%= chat.from %></b> to <b><%= chat.to %></b>
+      This chat was sent from <b><%= chat.from%></b> to <b><%= chat.to %></b>
     </p>
-    <form method="post" action="/chats/<%=chat._id%>>?_method=PUT">
-      <textarea
-        name="msg"
-        rows="10"
-        cols="10"
-        placeholder="Edit your message"
-        id=""
-      ></textarea>
+    <form method="post" action="/chats/<%=chat._id%>?_method=PUT">
+      <textarea cols="50" rows="20" name="msg" id=""><%=chat.msg%></textarea
+      ><br /><br />
       <button>Submit</button>
     </form>
   </body>
