@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const ExpressError = require("./ExpressError");
 
 // The app.use() function in Express.js adds middleware to the application’s request-processing pipeline. It applies the specified middleware to all incoming requests or to specific routes, allowing you to modify request/response objects, perform operations, or handle errors throughout the application.
 
@@ -32,19 +33,29 @@ const checkTokens = (req, res, next) => {
   if (token == "giveaccess") {
     next();
   }
-  throw new Error("Access Denied");
+  throw new ExpressError(401, "Access Denied");
 };
 
 app.get("/api", checkTokens, (req, res) => {
   res.send("data");
 });
 
-app.get("/", checkTokens, (req, res) => {
+app.get("/", (req, res) => {
   res.send("Root is working");
 });
 
 app.get("/random", (req, res) => {
   res.send("Random page");
+});
+
+app.get("/err", (req, res) => {
+  abcd = abcd;
+});
+
+// Custom Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.log("-----ERROR-----");
+  res.send(err);
 });
 
 // Error Handling Middleware - 404
