@@ -33,7 +33,7 @@ const checkTokens = (req, res, next) => {
   if (token == "giveaccess") {
     next();
   }
-  throw new ExpressError(401, "Access Denied");
+  throw new ExpressError(401, "Access Denied!");
 };
 
 app.get("/api", checkTokens, (req, res) => {
@@ -52,10 +52,14 @@ app.get("/err", (req, res) => {
   abcd = abcd;
 });
 
+app.get("/admin", (req, res) => {
+  throw new ExpressError(403, "Access to admin is forbidden");
+});
+
 // Custom Error Handling Middleware
 app.use((err, req, res, next) => {
-  console.log("-----ERROR-----");
-  res.send(err);
+  let { status = 500, message = "Some error Occured" } = err;
+  res.status(status).send(message);
 });
 
 // Error Handling Middleware - 404

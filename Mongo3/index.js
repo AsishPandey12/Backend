@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const Chat = require("./models/chats");
 const methodoverride = require("method-override");
+const ExpressError = require("../Middleware/ExpressError");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "Views"));
@@ -50,11 +51,15 @@ app.post("/chats", (req, res) => {
   res.redirect("/chats");
 });
 
-// Edit ROute
-app.get("/chats/:id/edit", async (req, res) => {
+// Edit Route
+app.get("/chats/:id/edit", async (req, res, next) => {
   let { id } = req.params;
   let chat = await Chat.findById(id);
   console.log(chat);
+  // Asysnchronous Error
+  if (!chat) {
+    next(new ExpressError(404, "Chat Not Found"));
+  }
   res.render("edit.ejs", { chat });
 });
 
@@ -76,6 +81,12 @@ app.delete("/chats/:id", async (req, res) => {
   let { id } = req.params;
   let deleteChat = await Chat.findByIdAndDelete(id);
   res.redirect("/chats");
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  let { status, message } = err;
+  res.status(status).send(message);
 });
 
 app.get("/", (req, res) => {
