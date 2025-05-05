@@ -22,11 +22,21 @@ async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/Whatsapp");
 }
 
+// Using wrapAsync - to handle Asynchronous errors
+function asyncWrap(fn) {
+  return function (req, res, next) {
+    fn(req, res, next).catch((err) => next(err));
+  };
+}
+
 // Index Route - /chats
-app.get("/chats", async (req, res) => {
-  let chats = await Chat.find();
-  res.render("index.ejs", { chats });
-});
+app.get(
+  "/chats",
+  asyncWrap(async (req, res, next) => {
+    let chats = await Chat.find();
+    res.render("index.ejs", { chats });
+  })
+);
 
 //New route
 app.get("/chats/new", (req, res) => {
@@ -34,58 +44,79 @@ app.get("/chats/new", (req, res) => {
 });
 
 // Create Route
-app.post("/chats", (req, res) => {
-  let { from, to, msg } = req.body;
-  let newChat = new Chat({
-    from: from,
-    to: to,
-    msg: msg,
-    created_at: new Date(),
-  });
-  newChat
-    .save()
-    .then((res) => console.log("Chat was saved"))
-    .catch((err) => {
-      console.log(err);
+app.post(
+  "/chats",
+  asyncWrap(async (req, res, next) => {
+    let { from, to, msg } = req.body;
+    let newChat = new Chat({
+      from: from,
+      to: to,
+      msg: msg,
+      created_at: new Date(),
     });
-  res.redirect("/chats");
-});
+    await newChat.save();
+    res.redirect("/chats");
+  })
+);
 
 // Edit Route
-app.get("/chats/:id/edit", async (req, res, next) => {
-  let { id } = req.params;
-  let chat = await Chat.findById(id);
-  console.log(chat);
-  // Asysnchronous Error
-  if (!chat) {
-    next(new ExpressError(404, "Chat Not Found"));
-  }
-  res.render("edit.ejs", { chat });
-});
+app.get(
+  "/chats/:id/edit",
+  asyncWrap(async (req, res, next) => {
+    let { id } = req.params;
+    let chat = await Chat.findById(id);
+    console.log(chat);
+    // Asysnchronous Error
+    if (!chat) {
+      next(new ExpressError(404, "Chat Not Found"));
+    }
+    res.render("edit.ejs", { chat });
+  })
+);
 
 // Update Route
-app.put("/chats/:id", async (req, res) => {
-  let { id } = req.params;
-  let { msg: newMsg } = req.body;
-  let updatedChat = await Chat.findByIdAndUpdate(
-    id,
-    { msg: newMsg },
-    { runValidators: true, new: true }
-  );
-  console.log(updatedChat);
-  res.redirect("/chats");
-});
+app.put(
+  "/chats/:id",
+  asyncWrap(async (req, res) => {
+    let { id } = req.params;
+    let { msg: newMsg } = req.body;
+    let updatedChat = await Chat.findByIdAndUpdate(
+      id,
+      { msg: newMsg },
+      { runValidators: true, new: true }
+    );
+    console.log(updatedChat);
+    res.redirect("/chats");
+  })
+);
 
 // Delete Route
-app.delete("/chats/:id", async (req, res) => {
-  let { id } = req.params;
-  let deleteChat = await Chat.findByIdAndDelete(id);
-  res.redirect("/chats");
+app.delete(
+  "/chats/:id",
+  asyncWrap(async (req, res) => {
+    let { id } = req.params;
+    let deleteChat = await Chat.findByIdAndDelete(id);
+    res.redirect("/chats");
+  })
+);
+
+const handleValidationErr = (err) => {
+  console.log("Validation error occurred");
+  return err;
+};
+
+// Error handling Middleware - Mongoose Error
+app.use((err, req, res, next) => {
+  console.log(err.name);
+  if (err.name === "ValidationError") {
+    err = handleValidationErr(err);
+  }
+  next(err);
 });
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-  let { status, message } = err;
+  let { status = 500, message = "Some Error Occurred" } = err;
   res.status(status).send(message);
 });
 

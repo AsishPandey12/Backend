@@ -59,6 +59,7 @@ app.get("/admin", (req, res) => {
 // Custom Error Handling Middleware
 app.use((err, req, res, next) => {
   let { status = 500, message = "Some error Occured" } = err;
+  console.log(err.stack);
   res.status(status).send(message);
 });
 
