@@ -29,21 +29,29 @@ const customerSchema = new Schema({
 const Order = mongoose.model("Order", orderSchema);
 const Customer = mongoose.model("Customer", customerSchema);
 
-const addCustomer = async () => {
-  let cust1 = new Customer({
-    name: "Rahul",
-  });
+// const addCustomer = async () => {
+//   let cust1 = new Customer({
+//     name: "Rahul",
+//   });
 
-  let order1 = await Order.findOne({ item: "Chips" });
-  let order2 = await Order.findOne({ item: "Chocalate" });
+//   let order1 = await Order.findOne({ item: "Chips" });
+//   let order2 = await Order.findOne({ item: "Chocalate" });
 
-  cust1.orders.push(order1);
-  cust1.orders.push(order2);
-  let result = await cust1.save();
+//   cust1.orders.push(order1);
+//   cust1.orders.push(order2);
+//   let result = await cust1.save();
 
-  console.log(result);
+//   console.log(result);
+// };
+// addCustomer();
+
+// Adding the order information in place of order id using (Populate method)
+const find = async () => {
+  let res = await Customer.findOne({ name: "Rahul" }).populate("orders");
+  console.log(res);
 };
-addCustomer();
+
+find();
 
 // const addOrders = async () => {
 //   let res = await Order.insertMany([
