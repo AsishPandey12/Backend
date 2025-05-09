@@ -26,6 +26,14 @@ const customerSchema = new Schema({
   ],
 });
 
+// Mongoose Middleware - Deletion
+customerSchema.post("findOneAndDelete", async (customer) => {
+  if (customer.orders.length) {
+    let res = await Order.deleteMany({ _id: { $in: customer.orders } });
+    console.log(res);
+  }
+});
+
 const Order = mongoose.model("Order", orderSchema);
 const Customer = mongoose.model("Customer", customerSchema);
 
@@ -46,12 +54,12 @@ const Customer = mongoose.model("Customer", customerSchema);
 // addCustomer();
 
 // Adding the order information in place of order id using (Populate method)
-const find = async () => {
-  let res = await Customer.findOne({ name: "Rahul" }).populate("orders");
-  console.log(res);
-};
+// const findCustomer = async () => {
+//   let res = await Customer.findOne({ name: "Rahul" }).populate("orders");
+//   console.log(res);
+// };
 
-find();
+// findCustomer();
 
 // const addOrders = async () => {
 //   let res = await Order.insertMany([
@@ -63,3 +71,29 @@ find();
 // };
 
 // addOrders();
+
+// const addCust = async () => {
+//   let newCust = new Customer({
+//     name: "Karan",
+//   });
+
+//   let newOrder = new Order({
+//     item: "Bingos",
+//     price: 250,
+//   });
+
+//   newCust.orders.push(newOrder);
+
+//   await newCust.save();
+//   await newOrder.save();
+//   console.log("Customer and Order saved successfully");
+// };
+
+// addCust();
+
+const deleteCust = async () => {
+  let res = await Customer.findByIdAndDelete("681e306f5cd87b58875db1ca");
+  console.log(res);
+};
+
+deleteCust();
